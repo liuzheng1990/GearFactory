@@ -35,7 +35,7 @@ function trajectorystatistics(traj::GearTrajectory_Ket, strFile::AbstractString=
 		if strFile == ""
 			strFile = "statistics($(traj.glab.env.alpha),$(traj.glab.env.w_d),$(traj.glab.env.V_0),$(traj.glab.env.V_d)).jld"
 		end
-		save(strFile,"mean_L1",mean_L1,"mean_L2",mean_L2,"std_L1",std_L1,"std_L2",std_L2)
+		save(strFile,"env",traj.glab.env,"mean_L1",mean_L1,"mean_L2",mean_L2,"std_L1",std_L1,"std_L2",std_L2)
 	end
 	return mean_L1, mean_L2, std_L1, std_L2
 end #function
