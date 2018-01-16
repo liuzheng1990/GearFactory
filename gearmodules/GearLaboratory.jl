@@ -11,7 +11,7 @@ will hopefully be deprecated, together with the global namespace.
 module GearLaboratory
 
 export GearLab, update_GearLab
-export b1,b2,b,L1,L2,L,K1,K2,K,H_d,externalH,H
+export b1,b2,b,L1,L2,L,K1,K2,K,H_d,externalH,H,one_gear_stationary_hamiltonian
 
 using LibrariesFunctions,QuantumOptics,EnvironmentSpecification
 
@@ -64,11 +64,27 @@ function externalH(glab::GearLab, t::Real)
     M = exp(-im*2*θₚ(glab.env,t))*r2
     M = 1/2 * (M + dagger(M)) + identityoperator(glab.b2)
     return -glab.env.V_0/2 * embed(glab.b,2,M)
-end
+end #function
 
 function H(glab::GearLab, t::Real, psi)
     return glab.K + glab.H_d + externalH(glab, t)
-end
+end #function
+
+"""
+function one_gear_stationary_hamiltonian(glab::GearLab)
+
+
+returns the hamiltonian of the driving gear alone, in the stationary external potential.
+
+"""
+
+function one_gear_stationary_hamiltonian(glab::GearLab)
+	M = raising_operator(glab.b2, glab.env.NDimension2,2)
+	M = 1/2 * (M + dagger(M)) + identityoperator(glab.b2)
+	H_e = glab.K2 - glab.env.V_0/2 * M
+	return H_e
+end #function
+
 
 function update_GearLab(glab::GearLab)
     global b1,b2,b,L1,L2,L,K1,K2,K,H_d,externalH,H
@@ -87,5 +103,7 @@ function update_GearLab(glab::GearLab)
 	H(t::Real, psi) = H(glab,t,psi)
     
 end #update_GearLab
+
+
 
 end #module
