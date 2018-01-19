@@ -21,6 +21,8 @@ struct EnvSpec
 end #struct
 
 """
+EnvSpec(alpha::Real, w_d::Real, V_0::Real, V_d::Real, I_1::Real, I_2::Real, m1_min::Int, m1_max::Int, m2_min::Int, m2_max::Int)
+
 If m2_min and m2_max are not given, they are set to be m1_min and m1_max by default.
 """
 EnvSpec(alpha::Real, w_d::Real, V_0::Real, V_d::Real, I_1::Real, I_2::Real, m1_min::Int, m1_max::Int) = EnvSpec(alpha, w_d, V_0, V_d, I_1, I_2, m1_min, m1_max, m1_min, m1_max)

@@ -40,7 +40,7 @@ function trajectorystatistics(traj::GearTrajectory_Ket, strFile::AbstractString=
 	return mean_L1, mean_L2, std_L1, std_L2
 end #function
 
-function momentumplot(env::EnvSpec, tout::Array, mean_L1::Array, mean_L2::Array, std_L1::Array, std_L2::Array, strFile::AbstractString="")
+function momentumplot(env::EnvSpec, tout::Union{Range,Array}, mean_L1::Array, mean_L2::Array, std_L1::Array, std_L2::Array, strFile::AbstractString="")
 	#println("momentum-plot:loading...")
 #	psi_t = traj.psi_t
 #	tout = traj.tout

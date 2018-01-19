@@ -90,6 +90,13 @@ end
 
 boosted_state(coeffvector, t::Real, rI::Real, m_min::Int, m_max::Int) = boosted_state_reloaded(coeffvector,t,rI,m_min,m_max,c_k)
 
+"""
+function partialtrace1(arrState::Array, d1::Int, d2::Int)
+
+Take a two-particle ket state, and compute the state of the second particle, by tracing out the first particle.
+
+Note that we adopted the convention how "QuantumOptics.jl" stores data for a ket state of two-particle systems.
+"""
 function partialtrace1(arrState::Array, d1::Int, d2::Int)
     get_ind(m,n,d1,d2) = m+d1*(n-1)
     @test length(arrState)==d1*d2
@@ -108,6 +115,14 @@ function partialtrace1(arrState::Array, d1::Int, d2::Int)
     return state
 end
 
+
+"""
+function partialtrace2(arrState::Array, d1::Int, d2::Int)
+
+Take a two-particle ket state, and compute the state of the first particle, by tracing out the second particle.
+
+Note that we adopted the convention how "QuantumOptics.jl" stores data for a ket state of two-particle systems.
+"""
 function partialtrace2(arrState::Array, d1::Int, d2::Int)
     get_ind(m,n,d1,d2) = m+d1*(n-1)
     @test length(arrState)==d1*d2
@@ -126,6 +141,20 @@ function partialtrace2(arrState::Array, d1::Int, d2::Int)
     return state
 end
 
+"""
+function densitymatrix_p2x(x_list, rho_p, m_min, m_max)
+
+Convert a density matrix from the momentum rep to the position rep.
+
+This is a very slow implementation of the conversion. A 2D FFT should be much faster
+but it requires 
+
+"length(x_list) == m_max - m_min + 1"
+
+which is not true in most of our computation tasks. This function should not be called
+unless really necessary. For example, if one only needs the diagonal entries, "x_distribution_dm"
+will be a slightly better choice.
+"""
 function densitymatrix_p2x(x_list, rho_p, m_min, m_max)   #a slow version
     rho_x = zeros(Complex{Float64},length(x_list),length(x_list))
     for i in 1:length(x_list)
@@ -144,26 +173,43 @@ function densitymatrix_p2x(x_list, rho_p, m_min, m_max)   #a slow version
     return rho_x
 end
 
-function x_distribution_dm(x_list, rho_p, m_min, m_max) #only aim to obtain the x distribution
+
+"""
+function x_distribution_dm(x_list::Array, rho_p::Array, m_min::Int, m_max::Int)
+
+Take a density matrix in the momentum rep and an array "x_list" of position coordinates, and return the probability distribution on "x_list".
+
+"m_min" and "m_max" are the upper and lower bounds of the momentum quantum numbers.
+
+"""
+function x_distribution_dm(x_list::Union{Array,Range}, rho_p::Array, m_min::Int, m_max::Int) #only aim to obtain the x distribution
     p_x = zeros(Float64,length(x_list))
     for i in 1:length(x_list)
-        sum = Float64(0)
+        sum = Complex{Float64}(0)
         for m1 in m_min:m_max
-            i1 = get_index(m1,m_min)
+            i1 = m1 - m_min + 1  #get_index(m1,m_min)
             for m2 in m_min:m_max
-                i2 = get_index(m2,m_min)
-                sum += rho_p[i1,i2]*exp(-im*(m2-m1)*x_list[i])
+                i2 = m2 - m_min + 1  #get_index(m2,m_min)
+                sum += rho_p[i1,i2]*exp(im*(m1-m2)*x_list[i])
             end
         end
-        p_x[i] = real(sum)
+        p_x[i] = real(sum)/(2*pi)
     end
-    return p_x./(2*pi)
+    return p_x
 end
 
 expect_dm(rho::Matrix, op::Union{Matrix,SparseMatrixCSC})=real(trace(rho*op))
 expect_dm(rho::Matrix, op::Operator)=expect_dm(rho,op.data)
 variance_dm(rho::Matrix, op::Union{Matrix,Operator})=expect_dm(rho,op*op)-expect_dm(rho,op)^2
 
+
+"""
+function simps(y::Vector, h::Number)
+
+function simps(x::Range, y::Vector)
+
+"y" stores the function values at each point of x. "h" = Step(x). Note the starting and end points of x do not matter because integration is translational invariant.
+"""
 function simps(y::Vector, h::Number)
     n = length(y)-1
     if n % 2 != 0
@@ -178,14 +224,4 @@ function simps(x::Range, y::Vector)
     return simps(y,h)
 end
 
-function dynamics(t,u,du)
-    θ₁ = u[1]
-    θ₂ = u[2]
-    dθ₁ = u[3]
-    dθ₂ = u[4]
-    du[1] = dθ₁
-    du[2] = dθ₂
-    du[3] = -V_d/I_1 * sin(θ₂-θ₁)
-    du[4] = V_d/I_2 * sin(θ₂-θ₁)-V_0/I_2 * sin(2*(θ₂-θₚ(t)))
-end
 end #module
