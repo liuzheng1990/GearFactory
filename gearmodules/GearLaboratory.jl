@@ -13,7 +13,7 @@ module GearLaboratory
 export GearLab, update_GearLab
 export b1,b2,b,L1,L2,L,K1,K2,K,H_d,externalH,H,one_gear_stationary_hamiltonian
 
-using LibrariesFunctions,QuantumOptics,EnvironmentSpecification
+using LibrariesFunctions, QuantumOptics, EnvironmentSpecification
 
 mutable struct GearLab #consider immutable
     env::EnvSpec
@@ -98,10 +98,10 @@ function update_GearLab(glab::GearLab)
     K2 = glab.K2
     K = glab.K
     H_d = glab.H_d
-	
+
 	externalH(t::Real) = externalH(glab,t)
 	H(t::Real, psi) = H(glab,t,psi)
-    
+
 end #update_GearLab
 
 

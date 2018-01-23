@@ -12,7 +12,7 @@ mutable struct ClassicalSol
     tspan::Tuple{Float64,Float64}
     dt::Float64; dt_hist::Float64
 
-#below are fields which can only be obtained after "ctimeevolution!" is run.     
+#below are fields which can only be obtained after "ctimeevolution!" is run.
 	mean_traj::Array{Float64,2}
 	std_traj::Array{Float64,2}
 	hists::Array{Array{Float64,2},1}
@@ -30,7 +30,7 @@ ClassicalSol(cinit::ClassicalInit, tspan::Tuple, dt::Float64, dt_hist::Float64) 
 function dynamics(env::EnvSpec, t::Real, u::Array, du::Array)
 	V_0 = env.V_0; V_d = env.V_d
 	I_1 = env.I_1; I_2 = env.I_2
-	θₚ(t::Real) = θₚ(env, t)
+	mθₚ(t::Real) = θₚ(env, t)
     θ₁ = u[1]
     θ₂ = u[2]
     dθ₁ = u[3]
@@ -38,7 +38,7 @@ function dynamics(env::EnvSpec, t::Real, u::Array, du::Array)
     du[1] = dθ₁
     du[2] = dθ₂
     du[3] = -V_d/I_1 * sin(θ₂-θ₁)
-    du[4] = V_d/I_2 * sin(θ₂-θ₁)-V_0/I_2 * sin(2*(θ₂-θₚ(t)))
+    du[4] = V_d/I_2 * sin(θ₂-θ₁)-V_0/I_2 * sin(2*(θ₂-mθₚ(t)))
 end
 
 function solving_slave(env::EnvSpec, initial_data::Array, tspan::Tuple, dt::Real, dt_hist::Real)
@@ -54,7 +54,10 @@ function solving_slave(env::EnvSpec, initial_data::Array, tspan::Tuple, dt::Real
     hists = Array{Float64,2}[]
     #final_data = []
 	mydynamics(t::Real, u::Array, du::Array) = dynamics(env,t,u,du)
+	ntemp = 0
     for u₀ in initial_data
+		ntemp += 1
+		println("processing: $(ntemp)...")
         prob=ODEProblem(mydynamics,u₀,tspan)
         sol=solve(prob, Vern8(), abstol=1e-12, reltol=1e-12)
         sol_array = collect(sol(t_list))
