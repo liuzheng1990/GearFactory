@@ -1,5 +1,5 @@
 # helloworld
 
-This repository contains the files from the "gearmodules" folder. I will find a way to organize them into directories soon.
+This repository contains the files from the "gearmodules" folder, and the "trotter-suzuki solver" folder.
 
-Upload: Jan. 11th, 2018. 
+Upload: May. 21st, 2018 (time flies)
