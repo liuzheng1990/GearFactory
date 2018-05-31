@@ -5,12 +5,20 @@ const OperatorMatrix = Array{Complex{Float64},2}
 
 include("gear_init_params.jl")
 
+n = n1+n2; ns = Int64((n1^2+n2^2)/gcd(n1,n2));
+p1 = div(n1,gcd(n1,n2)); p2 = div(n2,gcd(n1,n2))
+
 Npoints = m_max - m_min + 1
 m_list = m_min:m_max
+mpoints_gear = m_list
 dx = 2*pi/Npoints; x_list = range(0,dx,Npoints);
 
-I1 = rI; I2 = rI;
-Ip = 2*rI; Is = 2*rI;
+# I1 = rI; I2 = rI;
+Ip = n^2*I1/(n1^2+n2^2); Is = Ip;
+Ir = Is; Ic = Ip;
+prd = ns*2*pi/n  # period of theta_r coordinate
+
+## "gear_init_params.jl" should contain the values of n1 and n2
 
 # dt = 0.01;
 ################################################################################
@@ -27,7 +35,7 @@ arr_kick_plus = arr_kick_minus.'
 kick_plus_qo = dagger(kick_minus_qo)
 
 Ks_qo = Ls_qo^2/(2*Is)
-Vs_qo = -Vd/4*(kick_plus_qo^2 + kick_minus_qo^2)^2
+Vs_qo = -V0/4*(kick_plus_qo^2 + kick_minus_qo^2)^2
 Hs_qo = Ks_qo + Vs_qo
 arr_Hs = Hermitian(full(Hs_qo.data))
 D_Hs,Vec_Hs = eig(arr_Hs)
@@ -59,9 +67,9 @@ L1square_ope = L1_ope.^2
 L2_ope = [m_list_shifted[j] for i=1:Npoints,j=1:Npoints]
 L2square_ope = L2_ope.^2
 K_ope = L1square_ope/(2*I1)+L2square_ope/(2*I2)
-V_ope = [-Vd*cos(x_list[i]-x_list[j])^2 for i=1:Npoints,j=1:Npoints]
-Ls_ope = L1_ope - L2_ope
-Lp_ope = L1_ope + L2_ope
+V_ope = [-V0/2*(cos(n1*x_list[i]-n2*x_list[j])+1) for i=1:Npoints,j=1:Npoints]
+Ls_ope = n*n1/(n1^2+n2^2)*L1_ope - n*n2/(n1^2+n2^2)*L2_ope
+Lp_ope = n*n2/(n1^2+n2^2)*L1_ope + n*n1/(n1^2+n2^2)*L2_ope
 
 # functions
 ################################################################################
