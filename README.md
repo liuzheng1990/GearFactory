@@ -1,4 +1,4 @@
-# helloworld
+# hello Gears
 
 This repository contains the files from the "gearmodules" folder, and the "trotter-suzuki solver" folder.
 
